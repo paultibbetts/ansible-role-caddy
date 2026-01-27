@@ -8,6 +8,8 @@
       - apt-transport-https
     state: present
     update_cache: true
+    cache_valid_time: 3600
+    lock_timeout: 300
 
 - name: Download Cloudsmith repo key (armored)
   ansible.builtin.get_url:
@@ -41,11 +43,9 @@
     content: |
       deb [signed-by=/usr/share/keyrings/caddy-stable-archive-keyring.gpg] https://dl.cloudsmith.io/public/caddy/stable/deb/debian any-version main
 
-- name: Update apt cache
-  ansible.builtin.apt:
-    update_cache: true
-
 - name: Install Caddy
   ansible.builtin.apt:
     name: caddy
     state: present
+    update_cache: true
+    lock_timeout: 300

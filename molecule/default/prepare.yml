@@ -1,0 +1,40 @@
+---
+- name: Prepare
+  hosts: all
+  become: true
+  tasks:
+    - name: Stop and mask apt daily services and timers (avoid dpkg lock contention)
+      ansible.builtin.systemd:
+        name: "{{ item }}"
+        state: stopped
+        enabled: false
+        masked: true
+        daemon_reload: true
+      loop:
+        - apt-daily.service
+        - apt-daily.timer
+        - apt-daily-upgrade.service
+        - apt-daily-upgrade.timer
+      ignore_errors: true
+
+    - name: Kill any lingering apt/dpkg processes
+      ansible.builtin.shell: |
+        pids="$(pgrep -f 'apt.systemd.daily|apt-get|unattended-upgrades|/usr/bin/[a]pt|/usr/bin/dpkg' || true)"
+        if [ -n "$pids" ]; then
+          kill -9 $pids || true
+        fi
+      args:
+        executable: /bin/sh
+      changed_when: false
+      failed_when: false
+
+    - name: Remove apt/dpkg lock files (best effort)
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /var/lib/apt/lists/lock
+        - /var/cache/apt/archives/lock
+        - /var/lib/dpkg/lock
+        - /var/lib/dpkg/lock-frontend
+      ignore_errors: true
