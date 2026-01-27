@@ -1,0 +1,28 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Install Caddy
+  ansible.builtin.import_tasks: install.yaml
+
+- name: Ensure config directory exists
+  ansible.builtin.file:
+    path: "{{ caddy_config_path }}"
+    state: directory
+    mode: "0755"
+
+- name: Deploy Caddyfile
+  ansible.builtin.template:
+    src: "{{ caddy_caddyfile_template }}"
+    dest: "{{ caddy_config_path }}/Caddyfile"
+    mode: "0644"
+  notify: Reload caddy
+  when: caddy_caddyfile_template | default('') | length > 0
+
+- name: Enable and start Caddy service
+  ansible.builtin.service:
+    name: caddy.service
+    state: started
+    enabled: true
+
+- name: Check Caddy works
+  ansible.builtin.command: caddy version
+  changed_when: false

@@ -1,0 +1,7 @@
+#SPDX-License-Identifier: MIT-0
+---
+caddy_package: "caddy"
+caddy_package_state: "present"
+caddy_config_path: /etc/caddy
+
+caddy_caddyfile_template: ""

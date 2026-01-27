@@ -1,0 +1,7 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Reload caddy
+  ansible.builtin.service:
+    name: caddy
+    state: reloaded
+
