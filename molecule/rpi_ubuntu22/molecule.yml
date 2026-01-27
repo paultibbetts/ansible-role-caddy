@@ -6,8 +6,9 @@ driver:
   name: docker
 
 platforms:
-  - name: caddy-ubuntu-2404
-    image: geerlingguy/docker-ubuntu2404-ansible:latest
+  - name: caddy-rpi-ubuntu-2204
+    image: geerlingguy/docker-ubuntu2204-ansible:latest
+    platform: linux/arm64
     command: /lib/systemd/systemd
     user: root
     privileged: true
@@ -23,7 +24,7 @@ provisioner:
   name: ansible
   inventory:
     host_vars:
-      caddy-ubuntu-2404:
+      caddy-rpi-ubuntu-2204:
         ansible_connection: community.docker.docker
         ansible_user: root
         ansible_python_interpreter: /usr/bin/python3
