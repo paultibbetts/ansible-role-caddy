@@ -24,6 +24,9 @@ build_command = """
     git add uv.lock
 """
 
+[tool.semantic_release.changelog]
+template_dir = ".github/psr-templates"
+
 [tool.semantic_release.changelog.default_templates]
 changelog_file = "CHANGELOG.md"
 output_format = "md"
