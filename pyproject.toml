@@ -13,3 +13,23 @@ dev = [
     "molecule>=25.12.0",
     "molecule-plugins[docker]>=25.8.12",
 ]
+
+[tool.semantic_release]
+branch = "main"
+tag_format = "v{version}"
+commit_message = "chore(release): v{version}"
+major_on_zero = true
+build_command = """
+    uv lock --upgrade-package "$PACKAGE_NAME"
+    git add uv.lock
+"""
+
+[tool.semantic_release.changelog.default_templates]
+changelog_file = "CHANGELOG.md"
+output_format = "md"
+
+exclude_commit_patterns = [
+  '''ci(?:\([^)]*?\))?: .+''',
+  '''chore\(deps\): .+''',
+  '''Initial [Cc]ommit.*''',
+]
