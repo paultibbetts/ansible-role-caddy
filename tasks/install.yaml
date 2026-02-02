@@ -1,51 +1,28 @@
 ---
-- name: Install prerequisites for repository management
-  ansible.builtin.apt:
-    name:
-      - ca-certificates
-      - curl
-      - gnupg
-      - apt-transport-https
-    state: present
-    update_cache: true
-    cache_valid_time: 3600
-    lock_timeout: 300
+- name: Validate install method
+  ansible.builtin.assert:
+    that:
+      - caddy_install_method in ["apt", "download"]
+    fail_msg: >-
+      Unsupported caddy_install_method={{ caddy_install_method }}.
+      Supported values are "apt" or "download".
 
-- name: Download Cloudsmith repo key (armored)
-  ansible.builtin.get_url:
-    url: https://dl.cloudsmith.io/public/caddy/stable/gpg.key
-    dest: /usr/share/keyrings/caddy-stable-archive-keyring.asc
-    owner: root
-    group: root
-    mode: "0644"
+- name: Validate apt support on this OS
+  ansible.builtin.assert:
+    that:
+      - ansible_facts.os_family == "Debian"
+    fail_msg: >-
+      caddy_install_method=apt is only supported on Debian/Ubuntu
+      (ansible_facts.os_family={{ ansible_facts.os_family }}).
+      Use caddy_install_method=download instead.
+  when: caddy_install_method == "apt"
 
-- name: Dearmor key into dedicated apt keyring (overwrite)
-  ansible.builtin.command:
-    cmd: >-
-      gpg --dearmor --yes
-      --output /usr/share/keyrings/caddy-stable-archive-keyring.gpg
-      /usr/share/keyrings/caddy-stable-archive-keyring.asc
+- name: Install Caddy via apt
+  ansible.builtin.include_tasks: install_apt.yaml
+  when:
+    - caddy_install_method == "apt"
+    - ansible_facts.os_family == "Debian"
 
-- name: Ensure keyring permissions
-  ansible.builtin.file:
-    path: /usr/share/keyrings/caddy-stable-archive-keyring.gpg
-    owner: root
-    group: root
-    mode: "0644"
-    state: file
-
-- name: Add Caddy stable repo (pinned to keyring)
-  ansible.builtin.copy:
-    dest: /etc/apt/sources.list.d/caddy-stable.list
-    owner: root
-    group: root
-    mode: "0644"
-    content: |
-      deb [signed-by=/usr/share/keyrings/caddy-stable-archive-keyring.gpg] https://dl.cloudsmith.io/public/caddy/stable/deb/debian any-version main
-
-- name: Install Caddy
-  ansible.builtin.apt:
-    name: caddy
-    state: present
-    update_cache: true
-    lock_timeout: 300
+- name: Install Caddy via download
+  ansible.builtin.include_tasks: install_download.yaml
+  when: caddy_install_method == "download"
