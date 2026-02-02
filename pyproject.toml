@@ -16,7 +16,7 @@ dev = [
 
 [tool.semantic_release]
 branch = "main"
-tag_format = "v{version}"
+tag_format = "{version}"
 commit_message = "chore(release): v{version}"
 major_on_zero = true
 build_command = """
