@@ -12,91 +12,177 @@ Requirements
 - Debian/Ubuntu are supported by the apt install path.
 - Systemd is required for service management.
 
+Install
+-------
+
+This role is currently installed directly from GitHub. Add it to your
+`requirements.yml` and install with `ansible-galaxy`:
+
+```yaml
+- name: paultibbetts.caddy
+  src: https://github.com/paultibbetts/ansible-role-caddy
+  version: 1.0.0
+```
+
+```sh
+ansible-galaxy role install -r requirements.yml
+```
+
 Role Variables
 --------------
 
-Install method:
+Available variables, including defaults, are listed below:
 
-- `caddy_install_method` (default: `apt`)
-  - `apt` installs from the official Caddy apt repo
-  - `download` downloads a binary from a URL
-- `caddy_state` (default: `present`; set to `absent` to uninstall)
-- `caddy_purge` (default: `false`; when `true`, removes config/log dirs and user/group on uninstall)
+This role supports two install methods: `apt` and `download`.
 
-Download options (used when `caddy_install_method` is `download`):
+It defaults to using the `apt` package manager with the official Caddy repo.
 
-- `caddy_download_url` (optional): full URL to a binary; if empty, the role
-  builds a URL using the download API variables below
-- `caddy_download_base_url` (default: `https://caddyserver.com/api/download`)
-- `caddy_download_os` (default: `linux`)
-- `caddy_download_arch` (default derived from `ansible_facts["architecture"]`)
-- `caddy_plugins` (default: `[]`) list/dict/string of plugin module paths
-- `caddy_download_checksum` (optional): checksum for the binary (`sha256:<hex>`)
-- `caddy_download_force` (default: `false`)
-- `caddy_download_tmp_path` (default: `/tmp/caddy`)
-- `caddy_cleanup_download` (default: `true`)
+Caddy can then be updated along with other packages using `apt`.
 
-Service/config:
+`download` is used for getting a custom binary, which can include plugins.
 
-- `caddy_manage_service` (default: `true`)
-- `caddy_service_state` (default: `started`)
-- `caddy_service_enabled` (default: `true`)
-- `caddy_bin_path` (default: `/usr/bin/caddy` for apt installs)
-- `caddy_service_name` (default: `caddy`)
-- `caddy_user_name` / `caddy_group_name` (default: `caddy`)
-- `caddy_user_home_directory` (default: `/var/lib/caddy`)
-- `caddy_log_path` (default: `/var/log/caddy`; convenience directory if your Caddyfile logs to files)
-- `caddy_config_path` (default: `/etc/caddy`)
-- `caddy_caddyfile_template` (default: empty; opt-in, you provide the template)
-- `caddy_systemd_unit_template` (default: `caddy.service.j2`)
-- `caddy_manage_systemd_env_file` (default: `false`)
-- `caddy_systemd_env_file_path` (default: `/etc/caddy/caddy.env`)
-- `caddy_systemd_env` (default: `{}`; key/value env vars written to the env file when managed)
-- `caddy_env_vars` (default: `[]`)
-- `caddy_ambient_capabilities` (default: `[CAP_NET_BIND_SERVICE]`)
+```yaml
+caddy_install_method: apt
+```
 
-Notes / Caveats
----------------
+You can manage the state of Caddy, as well as purge the config and log directories if you
+wanted to completely uninstall.
 
-- Download installs are only re-fetched when the binary is missing or when
-  `caddy_download_force: true` is set. If you change `caddy_plugins` or
-  `caddy_download_url`, you may want to set `caddy_download_force: true`
-  (or provide `caddy_download_checksum`).
-- You can use `caddy_download_url` to point at a specific prebuilt binary
-  (for example, a pinned GitHub release asset or a custom build).
-- Overrides like `caddy_user_name`, `caddy_group_name`, `caddy_service_name`,
-  and `caddy_bin_path` are fully applied only for the `download` method. The
-  `apt` method uses the package-managed systemd unit.
-- For integrity verification of downloaded binaries, set
-  `caddy_download_checksum`.
-- When service management is enabled (`caddy_manage_service: true`), the role
-  only attempts to start/reload Caddy for `apt` installs or when a
-  `caddy_caddyfile_template` is provided (since the service needs a config).
-- The Caddyfile template task runs with `no_log` to avoid leaking secrets in
-  diffs/log output.
-- For secrets, prefer `caddy_systemd_env` (written to a root-only env file) over
-  `caddy_env_vars`, which are embedded directly in the unit file and are
-  world-readable.
+```yaml
+caddy_state: present | absent
+caddy_purge: false
+```
+
+You can control the service that runs Caddy with the following:
+
+```yaml
+caddy_manage_service: true
+caddy_service_state: started
+caddy_service_enabled: true
+```
+When service management is enabled (`caddy_manage_service: true`), the role
+only attempts to start/reload Caddy for `apt` installs or when a
+`caddy_caddyfile_template` is provided (since the service needs a config).
+
+The config options for Caddy can be controlled with:
+
+```yaml
+caddy_log_path: /var/log/caddy # useful if your Caddyfile logs to files
+caddy_config_path: /etc/caddy
+```
+
+You can pass in a template to be written to `caddy_config_path/Caddyfile` using:
+
+```yaml
+caddy_caddyfile_template: "" | "{{ playbook_dir }}/templates/Caddyfile.j2"
+```
+
+To pass in env values to Caddy from Ansible you must enable managing
+the env file and then pass in the values.
+These values may come from ansible-vault.
+
+```yaml
+caddy_manage_systemd_env_file: false
+caddy_systemd_env_file_path: /etc/caddy/caddy.env
+caddy_systemd_env: {} # key/value env vars written to the env file when managed
+```
+
+The following values are only applicable when installing via download.
+
+```yaml
+caddy_install_method: download
+```
+
+When using the download install method you are responsible for updating the
+Caddy binary.
+
+This can be done by building a pinned version of the binary with the
+plugins you want included, hosting it, and passing the URL to `caddy_download_url`.
+
+```yaml
+caddy_download_url: "" # full URL to a binary
+```
+
+If you leave `caddy_download_url` empty and let the role generate the URL
+for you then you will download the latest version of the binary.
+
+If you are not using `caddy_download_url` and want to install plugins you
+can pass them in using `caddy_plugins`.
+
+`caddy_plugins` can be found on the [Caddy download page](https://caddyserver.com/download).
+Plugins are expected to be listed using the go package name, such as:
+
+```yaml
+caddy_plugins:
+  - github.com/caddy-dns/cloudflare
+```
+
+Download options:
+
+```yaml
+caddy_download_base_url: https://caddyserver.com/api/download
+caddy_download_os: linux
+caddy_download_arch: ansible_facts["architecture"]
+caddy_plugins: [] # list/dict/string of plugin module paths
+caddy_download_checksum: "" # optional sha256:<hex> checksum for the binary
+caddy_download_force: false
+caddy_download_tmp_path: /tmp/caddy
+caddy_cleanup_download: true
+```
+
+The role will not check versions or install updates when using the
+download method.
+
+You can use `caddy_download_force` to force a new download. This
+could be because you want to update to the latest version, have
+changed the `caddy_download_url` or have included new plugins to
+be installed.
+
+Download-only service unit overrides:
+
+```yaml
+caddy_bin_path: /usr/bin/caddy
+caddy_service_name: caddy
+caddy_user_name: caddy
+caddy_group_name: caddy
+caddy_user_home_directory: /var/lib/caddy
+caddy_systemd_unit_template: caddy.service.j2
+caddy_ambient_capabilities: [CAP_NET_BIND_SERVICE]
+```
+
+You can pass in plain-text environment variables to Caddy with:
+
+```yaml
+caddy_env_vars: []
+```
+
+These are world-readable, so for secrets use the `caddy_systemd_env`
+variable instead, which is written to a root-only file.
+
+Dependencies
+------------
+
+None.
 
 Example Playbook
 ----------------
 
 Basic apt install:
 
-```
+```yaml
 - hosts: servers
   become: true
   roles:
-    - role: caddy
+    - role: paultibbetts.caddy
 ```
 
 Download a custom build with plugins:
 
-```
+```yaml
 - hosts: servers
   become: true
   roles:
-    - role: caddy
+    - role: paultibbetts.caddy
       vars:
         caddy_install_method: download
         caddy_plugins:
@@ -105,11 +191,11 @@ Download a custom build with plugins:
 
 Download a specific prebuilt binary via URL (pinned release or custom build):
 
-```
+```yaml
 - hosts: servers
   become: true
   roles:
-    - role: caddy
+    - role: paultibbetts.caddy
       vars:
         caddy_install_method: download
         caddy_download_url: "https://example.com/path/to/caddy"
@@ -118,35 +204,62 @@ Download a specific prebuilt binary via URL (pinned release or custom build):
 
 Use a Caddyfile template:
 
-```
+```yaml
 - hosts: servers
   become: true
   roles:
-    - role: caddy
+    - role: paultibbetts.caddy
       vars:
         caddy_caddyfile_template: "{{ playbook_dir }}/templates/Caddyfile.j2"
 ```
 
-Pass secrets to Caddy (via root-only env file) and set non-secret env vars directly:
+Pass secrets to Caddy and set non-secret env vars:
 
-```
+```yaml
 - hosts: servers
   become: true
   roles:
-    - role: caddy
+    - role: paultibbetts.caddy
+      vars:
+        caddy_caddyfile_template: "{{ playbook_dir }}/templates/Caddyfile.j2"
+        caddy_install_method: download
+        caddy_env_vars:
+          - "CADDY_ENV_VAR=plaintext"
+        caddy_manage_systemd_env_file: true
+        caddy_systemd_env:
+          CADDY_SECRET: "{{ vault_secret }}"
+```
+
+Caddy can be used in a private environment, like a homelab,
+where the Cloudflare plugin is used to perform [DNS-01 challenges](https://letsencrypt.org/docs/challenge-types/#dns-01-challenge)
+for Lets Encrypt to provide TLS certificates for domains it isn't able to reach directly.
+
+```yaml
+- hosts: homelab
+  become: true
+  roles:
+    - role: paultibbetts.caddy
       vars:
         caddy_caddyfile_template: "{{ playbook_dir }}/templates/Caddyfile.j2"
         caddy_install_method: download
         caddy_plugins:
           - github.com/caddy-dns/cloudflare
-        # Enable and populate an optional systemd EnvironmentFile.
         caddy_manage_systemd_env_file: true
         caddy_systemd_env:
-          CF_API_TOKEN: "{{ vault_cf_api_token }}"
-        caddy_env_vars:
-          - "CADDY_EXAMPLE=1"
+            CF_API_TOKEN: "{{ vault_cf_api_token }}"
 ```
 
+where the `Caddyfile.j2` template looks like:
+
+```j2
+service.example.com {
+  tls {
+    dns cloudflare {env.CF_API_TOKEN}
+  }
+  root * /srv/www/example.com/current
+  file_server
+}
+```
 
 Molecule Scenarios
 ------------------
@@ -157,29 +270,62 @@ Molecule Scenarios
 - `debian`: apt install on Debian 11/12 (bullseye/bookworm)
 - `ubuntu22_arm`: ARM64 Ubuntu 22 + download build + Cloudflare plugin + Caddyfile
 
-Prereqs:
+Requirements:
 
-- Docker running locally (Molecule uses the Docker driver).
-- Python + `uv` installed.
-- Collections installed:
-  - `uv run ansible-galaxy collection install -r molecule/requirements.yml`
+- Docker running locally - Molecule uses the Docker driver
+- Python installed - see `.python-version` file
+- Dependencies installed
+- Collections installed
+
+```sh
+pip install -r requirements-dev.txt
+ansible-galaxy collection install -r molecule/requirements.yml
+```
 
 Run a scenario:
 
+```sh
+molecule test -s cloudflare
 ```
+
+Using `uv`:
+
+```sh
 uv sync
-uv run molecule test -s default
-uv run molecule test -s cloudflare
-uv run molecule test -s caddyfile
+uv run ansible-galaxy collection install -r molecule/requirements.yml
+```
+
+Run a scenario:
+
+```sh
 uv run molecule test -s debian
-uv run molecule test -s ubuntu22_arm
 ```
 
-If you use Colima on macOS, prefix with:
+If you use Colima on macOS, you need to prefix all molecule commands with:
 
-```
+```sh
 DOCKER_HOST=unix://$HOME/.colima/default/docker.sock
 ```
+
+A Makefile is included with recipes for common actions when working on
+this role. These include:
+
+```sh
+make setup
+make deps
+make lint
+make test
+make test-molecule_scenario
+```
+
+If using Colima you can add the `DOCKER_HOST` setting to an `.env` file, using either
+the full path or the make-friendly format:
+
+```sh
+DOCKER_HOST=unix://$(HOME)/.colima/default/docker.sock
+```
+
+and make will pass the value through when running recipes.
 
 License
 -------
@@ -189,4 +335,4 @@ MIT
 Author Information
 ------------------
 
-Paul Tibbetts
+[Paul Tibbetts](https://paultibbetts.uk)
