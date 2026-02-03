@@ -1,4 +1,4 @@
-.PHONY: setup deps requirements lint test test-arm test-caddyfile test-cloudflare test-debian
+.PHONY: setup deps requirements lint test test-%
 
 -include .env
 export
@@ -22,14 +22,6 @@ lint: setup
 test: setup deps
 	uv run molecule test
 
-test-arm: setup deps
-	uv run molecule test -s ubuntu22_arm
+test-%: setup deps
+	uv run molecule test -s $*
 
-test-caddyfile: setup deps
-	uv run molecule test -s caddyfile
-
-test-cloudflare: setup deps
-	uv run molecule test -s cloudflare
-
-test-debian: setup deps
-	uv run molecule test -s debian
