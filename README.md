@@ -240,10 +240,27 @@ uv run molecule test -s debian
 uv run molecule test -s ubuntu22_arm
 ```
 
-If you use Colima on macOS, prefix with:
+A Makefile is included with recipes for common steps when working on 
+this role. These include:
+
+```sh
+make lint
+make test
+make test-debian
+```
+
+If you use Colima on macOS, you need to prefix all molecule commands with:
 
 ```
 DOCKER_HOST=unix://$HOME/.colima/default/docker.sock
+```
+
+Make will first check a `.env` file, so you can add this setting to that
+file, using either the full path or a format that works with make:
+
+```sh
+# .env
+DOCKER_HOST=unix://$(HOME)/.colima/default/docker.sock
 ```
 
 License
