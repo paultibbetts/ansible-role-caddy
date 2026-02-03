@@ -318,7 +318,7 @@ make test
 make test-molecule_scenario
 ```
 
-If using Colima you can add the `DOCKER_HOST` setting to an `.env`file, using either
+If using Colima you can add the `DOCKER_HOST` setting to an `.env` file, using either
 the full path or the make-friendly format:
 
 ```sh
