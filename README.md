@@ -301,7 +301,13 @@ Run a scenario:
 uv run molecule test -s debian
 ```
 
-A Makefile is included with recipes for common steps when working on 
+If you use Colima on macOS, you need to prefix all molecule commands with:
+
+```sh
+DOCKER_HOST=unix://$HOME/.colima/default/docker.sock
+```
+
+A Makefile is included with recipes for common actions when working on
 this role. These include:
 
 ```sh
@@ -312,18 +318,14 @@ make test
 make test-arm
 ```
 
-If you use Colima on macOS, you need to prefix all molecule commands with:
-
-```
-DOCKER_HOST=unix://$HOME/.colima/default/docker.sock
-```
-
-You can add this setting to an `.env`file, using either
+If using Colima you can add the `DOCKER_HOST` setting to an `.env`file, using either
 the full path or the make-friendly format:
 
 ```sh
 DOCKER_HOST=unix://$(HOME)/.colima/default/docker.sock
 ```
+
+and make will pass the value through when running recipes.
 
 License
 -------
