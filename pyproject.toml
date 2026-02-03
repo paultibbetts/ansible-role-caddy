@@ -1,7 +1,7 @@
 [project]
 name = "ansible-role-caddy"
 version = "0.1.0"
-description = "Add your description here"
+description = "An Ansible role to install, configure and manage Caddy web server."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = []
