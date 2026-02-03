@@ -33,7 +33,12 @@ changelog_file = "CHANGELOG.md"
 output_format = "md"
 
 exclude_commit_patterns = [
+  '''build(?:\([^)]*?\))?: .+''',
+  '''chore(?:\([^)]*?\))?: .+''',
   '''ci(?:\([^)]*?\))?: .+''',
-  '''chore\(deps\): .+''',
+  '''docs(?:\([^)]*?\))?: .+''',
+  '''refactor(?:\([^)]*?\))?: .+''',
+  '''style(?:\([^)]*?\))?: .+''',
+  '''test(?:\([^)]*?\))?: .+''',
   '''Initial [Cc]ommit.*''',
 ]
