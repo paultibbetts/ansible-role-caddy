@@ -300,9 +300,11 @@ A Makefile is included with recipes for common steps when working on
 this role. These include:
 
 ```sh
+make setup
+make deps
 make lint
 make test
-make test-debian
+make test-arm
 ```
 
 If you use Colima on macOS, you need to prefix all molecule commands with:
@@ -311,11 +313,10 @@ If you use Colima on macOS, you need to prefix all molecule commands with:
 DOCKER_HOST=unix://$HOME/.colima/default/docker.sock
 ```
 
-Make will first check a `.env` file, so you can add this setting to that
-file, using either the full path or a format that works with make:
+You can add this setting to an `.env`file, using either
+the full path or the make-friendly format:
 
 ```sh
-# .env
 DOCKER_HOST=unix://$(HOME)/.colima/default/docker.sock
 ```
 
