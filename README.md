@@ -214,7 +214,26 @@ Pass secrets to Caddy and set non-secret env vars:
 - hosts: servers
   become: true
   roles:
-    - role: caddy
+    - role: paultibbetts.caddy
+      vars:
+        caddy_caddyfile_template: "{{ playbook_dir }}/templates/Caddyfile.j2"
+        caddy_install_method: download
+        caddy_env_vars:
+          - "CADDY_ENV_VAR=plaintext"
+        caddy_manage_systemd_env_file: true
+        caddy_systemd_env:
+          CADDY_SECRET: "{{ vault_secret }}"
+```
+
+Caddy can be used in a private homelab environment as a reverse proxy,
+where the Cloudflare plugin is used to perform [DNS-01 challenges](https://letsencrypt.org/docs/challenge-types/#dns-01-challenge)
+for Lets Encrypt to provide TLS certificates for domains it isn't able to reach directly.
+
+```yaml
+- hosts: homelab
+  become: true
+  roles:
+    - role: paultibbetts.caddy
       vars:
         caddy_caddyfile_template: "{{ playbook_dir }}/templates/Caddyfile.j2"
         caddy_install_method: download
@@ -225,6 +244,17 @@ Pass secrets to Caddy and set non-secret env vars:
             CF_API_TOKEN: "{{ vault_cf_api_token }}"
 ```
 
+where the `Caddyfile.j2` template looks like:
+
+```j2
+service.example.com {
+  tls {
+    dns cloudflare {env.CF_API_TOKEN}
+  }
+  root * /srv/www/example.com/current
+  file_server
+}
+```
 
 Molecule Scenarios
 ------------------
