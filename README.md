@@ -1,9 +1,10 @@
 Caddy
 =========
 
-An Ansible role to install and configure Caddy. Defaults to installing from the
-official apt repository, with optional support for downloading a custom binary
-(e.g., with plugins).
+An Ansible role to install, configure and manage [Caddy](https://caddyserver.com/).
+
+Defaults to installing from the official apt repository,
+with optional support for downloading a custom binary with plugins.
 
 Requirements
 ------------
