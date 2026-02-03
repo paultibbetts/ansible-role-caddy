@@ -267,16 +267,19 @@ Molecule Scenarios
 
 Requirements:
 
-- Docker running locally (Molecule uses the Docker driver).
-- Python installed (see `.python-version` file).
-- Dependencies installed:
-  - `pip install -r requirements-dev.txt`
-- Collections installed:
-  - `ansible-galaxy collection install -r molecule/requirements.yml`
+- Docker running locally - Molecule uses the Docker driver
+- Python installed - see `.python-version` file
+- Dependencies installed
+- Collections installed
+
+```sh
+pip install -r requirements-dev.txt
+ansible-galaxy collection install -r molecule/requirements.yml
+```
 
 Run a scenario:
 
-```
+```sh
 molecule test -s default
 molecule test -s cloudflare
 molecule test -s caddyfile
@@ -286,8 +289,14 @@ molecule test -s ubuntu22_arm
 
 Using `uv`:
 
-```
+```sh
 uv sync
+uv run ansible-galaxy collection install -r molecule/requirements.yml
+```
+
+Run a scenario:
+
+```sh
 uv run molecule test -s default
 uv run molecule test -s cloudflare
 uv run molecule test -s caddyfile
