@@ -280,11 +280,7 @@ ansible-galaxy collection install -r molecule/requirements.yml
 Run a scenario:
 
 ```sh
-molecule test -s default
 molecule test -s cloudflare
-molecule test -s caddyfile
-molecule test -s debian
-molecule test -s ubuntu22_arm
 ```
 
 Using `uv`:
@@ -297,11 +293,7 @@ uv run ansible-galaxy collection install -r molecule/requirements.yml
 Run a scenario:
 
 ```sh
-uv run molecule test -s default
-uv run molecule test -s cloudflare
-uv run molecule test -s caddyfile
 uv run molecule test -s debian
-uv run molecule test -s ubuntu22_arm
 ```
 
 A Makefile is included with recipes for common steps when working on 
