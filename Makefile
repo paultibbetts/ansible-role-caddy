@@ -13,6 +13,9 @@ setup:
 deps: setup
 	uv run ansible-galaxy collection install -r molecule/requirements.yml $(GALAXY_FLAGS)
 
+requirements: setup
+	uv pip compile pyproject.toml --group dev -o requirements-dev.txt
+
 lint: setup
 	uv run ansible-lint .
 

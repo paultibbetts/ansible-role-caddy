@@ -222,14 +222,26 @@ Molecule Scenarios
 - `debian`: apt install on Debian 11/12 (bullseye/bookworm)
 - `ubuntu22_arm`: ARM64 Ubuntu 22 + download build + Cloudflare plugin + Caddyfile
 
-Prereqs:
+Requirements:
 
 - Docker running locally (Molecule uses the Docker driver).
-- Python + `uv` installed.
+- Python installed (see `.python-version` file).
+- Dependencies installed:
+  - `pip install -r requirements-dev.txt`
 - Collections installed:
-  - `uv run ansible-galaxy collection install -r molecule/requirements.yml`
+  - `ansible-galaxy collection install -r molecule/requirements.yml`
 
 Run a scenario:
+
+```
+molecule test -s default
+molecule test -s cloudflare
+molecule test -s caddyfile
+molecule test -s debian
+molecule test -s ubuntu22_arm
+```
+
+Using `uv`:
 
 ```
 uv sync
