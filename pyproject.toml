@@ -19,7 +19,12 @@ branch = "main"
 tag_format = "{version}"
 commit_message = "chore(release): v{version}"
 major_on_zero = true
-version_toml = ["pyproject.toml:project.version"]
+version_toml = [
+  "pyproject.toml:project.version"
+]
+version_variables = [
+  "README.md:version"
+]
 build_command = """
     uv lock --upgrade-package "$PACKAGE_NAME"
     git add uv.lock

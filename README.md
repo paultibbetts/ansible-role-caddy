@@ -12,6 +12,22 @@ Requirements
 - Debian/Ubuntu are supported by the apt install path.
 - Systemd is required for service management.
 
+Install
+-------
+
+This role is currently installed directly from GitHub. Add it to your
+`requirements.yml` and install with `ansible-galaxy`:
+
+```yaml
+- name: paultibbetts.caddy
+  src: https://github.com/paultibbetts/ansible-role-caddy
+  version: 1.0.0
+```
+
+```sh
+ansible-galaxy role install -r requirements.yml
+```
+
 Role Variables
 --------------
 
@@ -148,20 +164,20 @@ Example Playbook
 
 Basic apt install:
 
-```
+```yaml
 - hosts: servers
   become: true
   roles:
-    - role: caddy
+    - role: paultibbetts.caddy
 ```
 
 Download a custom build with plugins:
 
-```
+```yaml
 - hosts: servers
   become: true
   roles:
-    - role: caddy
+    - role: paultibbetts.caddy
       vars:
         caddy_install_method: download
         caddy_plugins:
@@ -170,11 +186,11 @@ Download a custom build with plugins:
 
 Download a specific prebuilt binary via URL (pinned release or custom build):
 
-```
+```yaml
 - hosts: servers
   become: true
   roles:
-    - role: caddy
+    - role: paultibbetts.caddy
       vars:
         caddy_install_method: download
         caddy_download_url: "https://example.com/path/to/caddy"
@@ -183,18 +199,18 @@ Download a specific prebuilt binary via URL (pinned release or custom build):
 
 Use a Caddyfile template:
 
-```
+```yaml
 - hosts: servers
   become: true
   roles:
-    - role: caddy
+    - role: paultibbetts.caddy
       vars:
         caddy_caddyfile_template: "{{ playbook_dir }}/templates/Caddyfile.j2"
 ```
 
 Pass secrets to Caddy and set non-secret env vars:
 
-```
+```yaml
 - hosts: servers
   become: true
   roles:
@@ -204,12 +220,9 @@ Pass secrets to Caddy and set non-secret env vars:
         caddy_install_method: download
         caddy_plugins:
           - github.com/caddy-dns/cloudflare
-        # Enable and populate an optional systemd EnvironmentFile.
         caddy_manage_systemd_env_file: true
         caddy_systemd_env:
-          CADDY_SECRET: "{{ vault_secret }}"
-        caddy_env_vars:
-          - "CADDY_ENV_VAR=plaintext"
+            CF_API_TOKEN: "{{ vault_cf_api_token }}"
 ```
 
 
