@@ -159,6 +159,11 @@ caddy_env_vars: []
 These are world-readable, so for secrets use the `caddy_systemd_env`
 variable instead, which is written to a root-only file.
 
+Dependencies
+------------
+
+None.
+
 Example Playbook
 ----------------
 
@@ -328,4 +333,4 @@ MIT
 Author Information
 ------------------
 
-Paul Tibbetts
+[Paul Tibbetts](https://paultibbetts.uk)
