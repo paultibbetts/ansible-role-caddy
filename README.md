@@ -15,68 +15,133 @@ Requirements
 Role Variables
 --------------
 
-Install method:
+Available variables, including defaults, are listed below:
 
-- `caddy_install_method` (default: `apt`)
-  - `apt` installs from the official Caddy apt repo
-  - `download` downloads a binary from a URL
-- `caddy_state` (default: `present`; set to `absent` to uninstall)
-- `caddy_purge` (default: `false`; when `true`, removes config/log dirs and user/group on uninstall)
+This role supports two install methods: `apt` and `download`.
 
-Download options (used when `caddy_install_method` is `download`):
+It defaults to using the `apt` package manager via the official Caddy repo.
 
-- `caddy_download_url` (optional): full URL to a binary; if empty, the role
-  builds a URL using the download API variables below
-- `caddy_download_base_url` (default: `https://caddyserver.com/api/download`)
-- `caddy_download_os` (default: `linux`)
-- `caddy_download_arch` (default derived from `ansible_facts["architecture"]`)
-- `caddy_plugins` (default: `[]`) list/dict/string of plugin module paths
-- `caddy_download_checksum` (optional): checksum for the binary (`sha256:<hex>`)
-- `caddy_download_force` (default: `false`)
-- `caddy_download_tmp_path` (default: `/tmp/caddy`)
-- `caddy_cleanup_download` (default: `true`)
+Caddy can then be updated along with other packages using `apt`.
 
-Service/config:
+`download` is used for getting a custom binary, which can include plugins.
 
-- `caddy_manage_service` (default: `true`)
-- `caddy_service_state` (default: `started`)
-- `caddy_service_enabled` (default: `true`)
-- `caddy_bin_path` (default: `/usr/bin/caddy` for apt installs)
-- `caddy_service_name` (default: `caddy`)
-- `caddy_user_name` / `caddy_group_name` (default: `caddy`)
-- `caddy_user_home_directory` (default: `/var/lib/caddy`)
-- `caddy_log_path` (default: `/var/log/caddy`; convenience directory if your Caddyfile logs to files)
-- `caddy_config_path` (default: `/etc/caddy`)
-- `caddy_caddyfile_template` (default: empty; opt-in, you provide the template)
-- `caddy_systemd_unit_template` (default: `caddy.service.j2`)
-- `caddy_manage_systemd_env_file` (default: `false`)
-- `caddy_systemd_env_file_path` (default: `/etc/caddy/caddy.env`)
-- `caddy_systemd_env` (default: `{}`; key/value env vars written to the env file when managed)
-- `caddy_env_vars` (default: `[]`)
-- `caddy_ambient_capabilities` (default: `[CAP_NET_BIND_SERVICE]`)
+```yaml
+caddy_install_method: apt
+```
 
-Notes / Caveats
----------------
+You can manage the state of Caddy, as well as purge the config and log directories if you
+wanted to completely uninstall.
 
-- Download installs are only re-fetched when the binary is missing or when
-  `caddy_download_force: true` is set. If you change `caddy_plugins` or
-  `caddy_download_url`, you may want to set `caddy_download_force: true`
-  (or provide `caddy_download_checksum`).
-- You can use `caddy_download_url` to point at a specific prebuilt binary
-  (for example, a pinned GitHub release asset or a custom build).
-- Overrides like `caddy_user_name`, `caddy_group_name`, `caddy_service_name`,
-  and `caddy_bin_path` are fully applied only for the `download` method. The
-  `apt` method uses the package-managed systemd unit.
-- For integrity verification of downloaded binaries, set
-  `caddy_download_checksum`.
-- When service management is enabled (`caddy_manage_service: true`), the role
-  only attempts to start/reload Caddy for `apt` installs or when a
-  `caddy_caddyfile_template` is provided (since the service needs a config).
-- The Caddyfile template task runs with `no_log` to avoid leaking secrets in
-  diffs/log output.
-- For secrets, prefer `caddy_systemd_env` (written to a root-only env file) over
-  `caddy_env_vars`, which are embedded directly in the unit file and are
-  world-readable.
+```yaml
+caddy_state: present | absent
+caddy_purge: false
+```
+
+You can control the service that runs Caddy with the following:
+
+```yaml
+caddy_manage_service: true
+caddy_service_state: started
+caddy_service_enabled: true
+```
+When service management is enabled (`caddy_manage_service: true`), the role
+only attempts to start/reload Caddy for `apt` installs or when a
+`caddy_caddyfile_template` is provided (since the service needs a config).
+
+The config options for Caddy can be controlled with:
+
+```yaml
+caddy_log_path: /var/log/caddy # useful if your Caddyfile logs to files
+caddy_config_path: /etc/caddy
+```
+
+You can pass in a template to be written to `caddy_config_path/Caddyfile` using:
+
+```yaml
+caddy_caddyfile_template: "" | "{{ playbook_dir }}/templates/Caddyfile.j2"
+```
+
+To pass in env values to Caddy from Ansible you must enable managing
+the env file and then pass in the values.
+These values may come from ansible-vault.
+
+```yaml
+caddy_manage_systemd_env_file: false
+caddy_systemd_env_file_path: /etc/caddy/caddy.env
+caddy_systemd_env: {} # key/value env vars written to the env file when managed
+```
+
+The following values are only applicable when installing via download.
+
+```yaml
+caddy_install_method: download
+```
+
+When using the download install method you are responsible for updating the
+Caddy binary.
+
+This can be done by building a pinned version of the binary with the
+plugins you want included, hosting it, and passing the URL to `caddy_download_url`.
+
+```yaml
+caddy_download_url: "" # full URL to a binary
+```
+
+If you leave `caddy_download_url` empty and let the role generate the URL
+for you then you will download the latest version of the binary.
+
+If you are not using `caddy_download_url` and want to install plugins you
+can pass them in using `caddy_plugins`.
+
+`caddy_plugins` can be found on the [Caddy download page](https://caddyserver.com/download).
+Plugins are expected to be listed using the go package name, such as:
+
+```yaml
+caddy_plugins:
+  - github.com/caddy-dns/cloudflare
+```
+
+Download options:
+
+```yaml
+caddy_download_base_url: https://caddyserver.com/api/download
+caddy_download_os: linux
+caddy_download_arch: ansible_facts["architecture"]
+caddy_plugins: [] # list/dict/string of plugin module paths
+caddy_download_checksum: "" # optional sha256:<hex> checksum for the binary
+caddy_download_force: false
+caddy_download_tmp_path: /tmp/caddy
+caddy_cleanup_download: true
+```
+
+The role will not check versions or install updates when using the
+download method.
+
+You can use `caddy_download_force` to force a new download. This
+could be because you want to update to the latest version, have
+changed the `caddy_download_url` or have included new plugins to
+be installed.
+
+Download-only service unit overrides:
+
+```yaml
+caddy_bin_path: /usr/bin/caddy
+caddy_service_name: caddy
+caddy_user_name: caddy
+caddy_group_name: caddy
+caddy_user_home_directory: /var/lib/caddy
+caddy_systemd_unit_template: caddy.service.j2
+caddy_ambient_capabilities: [CAP_NET_BIND_SERVICE]
+```
+
+You can pass in plain-text environment variables to Caddy with:
+
+```yaml
+caddy_env_vars: []
+```
+
+These are world-readable, so for secrets use the `caddy_systemd_env`
+variable instead, which is written to a root-only file.
 
 Example Playbook
 ----------------
@@ -127,7 +192,7 @@ Use a Caddyfile template:
         caddy_caddyfile_template: "{{ playbook_dir }}/templates/Caddyfile.j2"
 ```
 
-Pass secrets to Caddy (via root-only env file) and set non-secret env vars directly:
+Pass secrets to Caddy and set non-secret env vars:
 
 ```
 - hosts: servers
@@ -142,9 +207,9 @@ Pass secrets to Caddy (via root-only env file) and set non-secret env vars direc
         # Enable and populate an optional systemd EnvironmentFile.
         caddy_manage_systemd_env_file: true
         caddy_systemd_env:
-          CF_API_TOKEN: "{{ vault_cf_api_token }}"
+          CADDY_SECRET: "{{ vault_secret }}"
         caddy_env_vars:
-          - "CADDY_EXAMPLE=1"
+          - "CADDY_ENV_VAR=plaintext"
 ```
 
 
