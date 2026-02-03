@@ -315,7 +315,7 @@ make setup
 make deps
 make lint
 make test
-make test-<molecule scenario>
+make test-molecule_scenario
 ```
 
 If using Colima you can add the `DOCKER_HOST` setting to an `.env`file, using either
