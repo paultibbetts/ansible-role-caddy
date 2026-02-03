@@ -18,7 +18,7 @@ jobs:
         run: uv python install
       - name: Check requirements-dev.txt is up to date
         run: |
-          uv pip compile pyproject.toml --group dev -o requirements-dev.txt
+          uv pip compile pyproject.toml --universal --group dev -o requirements-dev.txt
           git diff --exit-code requirements-dev.txt
       - name: Run ansible-lint
         run: uv run ansible-lint .

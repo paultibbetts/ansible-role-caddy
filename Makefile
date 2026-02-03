@@ -1,9 +1,9 @@
 .PHONY: setup deps requirements lint test test-%
 
+GALAXY_FLAGS ?=
+
 -include .env
 export
-
-GALAXY_FLAGS ?=
 
 setup:
 	@command -v uv >/dev/null || \
@@ -15,6 +15,9 @@ requirements: setup
 
 deps: setup
 	uv run ansible-galaxy collection install -r molecule/requirements.yml $(GALAXY_FLAGS)
+
+requirements: setup
+	uv pip compile pyproject.toml --universal --group dev -o requirements-dev.txt
 
 lint: setup
 	uv run ansible-lint .
