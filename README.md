@@ -35,7 +35,7 @@ Available variables, including defaults, are listed below:
 
 This role supports two install methods: `apt` and `download`.
 
-It defaults to using the `apt` package manager via the official Caddy repo.
+It defaults to using the `apt` package manager with the official Caddy repo.
 
 Caddy can then be updated along with other packages using `apt`.
 
@@ -225,7 +225,7 @@ Pass secrets to Caddy and set non-secret env vars:
           CADDY_SECRET: "{{ vault_secret }}"
 ```
 
-Caddy can be used in a private homelab environment as a reverse proxy,
+Caddy can be used in a private environment, like a homelab,
 where the Cloudflare plugin is used to perform [DNS-01 challenges](https://letsencrypt.org/docs/challenge-types/#dns-01-challenge)
 for Lets Encrypt to provide TLS certificates for domains it isn't able to reach directly.
 
