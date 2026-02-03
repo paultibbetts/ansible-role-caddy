@@ -17,7 +17,7 @@ dev = [
 [tool.semantic_release]
 branch = "main"
 tag_format = "{version}"
-commit_message = "chore(release): v{version}"
+commit_message = "chore(release): v{version} [skip ci]"
 major_on_zero = true
 version_toml = [
   "pyproject.toml:project.version"
