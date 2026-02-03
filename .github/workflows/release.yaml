@@ -1,11 +1,9 @@
 name: Release
 
 on:
-  workflow_run:
-    workflows:
-      - Test
-    types:
-      - completed
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -16,22 +14,15 @@ permissions:
 jobs:
   release:
     if: >
-      ${{ (github.event_name == 'workflow_dispatch' && github.ref_name == 'main') ||
-          (github.event.workflow_run.conclusion == 'success' &&
-           github.event.workflow_run.head_branch == 'main' &&
-           github.event.workflow_run.head_repository.full_name == github.repository) }}
+      ${{ github.event_name != 'workflow_dispatch' || github.ref_name == 'main' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_branch || github.ref_name }}
+          ref: ${{ github.ref_name }}
           fetch-depth: 0
           fetch-tags: true
-      - name: Reset branch to tested sha
-        if: ${{ github.event_name == 'workflow_run' }}
-        run: |
-          git reset --hard ${{ github.event.workflow_run.head_sha }}
       - name: Set up uv
         uses: astral-sh/setup-uv@v7
         with:
