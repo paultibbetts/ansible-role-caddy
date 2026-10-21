@@ -157,7 +157,9 @@ caddy_env_vars: []
 ```
 
 These are world-readable, so for secrets use the `caddy_systemd_env`
-variable instead, which is written to a root-only file.
+variable instead, which is written to a root-only file. The service does not
+pass Caddy's `--environ` diagnostic flag, so values from that file are not
+written to the journal at startup.
 
 Dependencies
 ------------

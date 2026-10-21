@@ -27,3 +27,14 @@
         that:
           - "'dns.providers.cloudflare' in caddy_modules.stdout"
         fail_msg: "Cloudflare DNS module not found in Caddy build"
+
+    - name: Read Caddy service unit
+      ansible.builtin.slurp:
+        src: /etc/systemd/system/caddy.service
+      register: caddy_service_unit
+
+    - name: Assert Caddy does not log its environment at startup
+      ansible.builtin.assert:
+        that:
+          - "'--environ' not in (caddy_service_unit.content | b64decode)"
+        fail_msg: "Caddy service must not use --environ because it logs secrets"
