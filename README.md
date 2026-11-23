@@ -21,7 +21,7 @@ This role is currently installed directly from GitHub. Add it to your
 ```yaml
 - name: paultibbetts.caddy
   src: https://github.com/paultibbetts/ansible-role-caddy
-  version: 1.0.0
+  version: 1.0.1
 ```
 
 ```sh
