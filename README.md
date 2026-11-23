@@ -21,7 +21,7 @@ This role is currently installed directly from GitHub. Add it to your
 ```yaml
 - name: paultibbetts.caddy
   src: https://github.com/paultibbetts/ansible-role-caddy
-  version: 1.0.1
+  version: 2.0.0
 ```
 
 ```sh
@@ -269,7 +269,7 @@ Molecule Scenarios
 - `default`: apt install only
 - `cloudflare`: download build with Cloudflare DNS plugin
 - `caddyfile`: apt install + Caddyfile end-to-end check
-- `debian`: apt install on Debian 11/12 (bullseye/bookworm)
+- `debian`: apt install on Debian 12 (bookworm)
 - `ubuntu22_arm`: ARM64 Ubuntu 22 + download build + Cloudflare plugin + Caddyfile
 
 Requirements:
