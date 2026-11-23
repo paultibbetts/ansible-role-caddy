@@ -269,7 +269,7 @@ Molecule Scenarios
 - `default`: apt install only
 - `cloudflare`: download build with Cloudflare DNS plugin
 - `caddyfile`: apt install + Caddyfile end-to-end check
-- `debian`: apt install on Debian 11/12 (bullseye/bookworm)
+- `debian`: apt install on Debian 12 (bookworm)
 - `ubuntu22_arm`: ARM64 Ubuntu 22 + download build + Cloudflare plugin + Caddyfile
 
 Requirements:
