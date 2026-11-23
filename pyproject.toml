@@ -32,11 +32,6 @@ build_command = """
 
 [tool.semantic_release.changelog]
 template_dir = ".github/psr-templates"
-
-[tool.semantic_release.changelog.default_templates]
-changelog_file = "CHANGELOG.md"
-output_format = "md"
-
 exclude_commit_patterns = [
   '''build(?:\([^)]*?\))?: .+''',
   '''chore(?:\([^)]*?\))?: .+''',
@@ -47,3 +42,7 @@ exclude_commit_patterns = [
   '''test(?:\([^)]*?\))?: .+''',
   '''Initial [Cc]ommit.*''',
 ]
+
+[tool.semantic_release.changelog.default_templates]
+changelog_file = "CHANGELOG.md"
+output_format = "md"
