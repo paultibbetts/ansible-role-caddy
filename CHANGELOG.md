@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v2.0.0 (2026-11-23)
+
+### Features
+
+- Drop Debian 11 support ([#3](https://github.com/paultibbetts/ansible-role-caddy/pull/3),
+  [`10c5f9e`](https://github.com/paultibbetts/ansible-role-caddy/commit/10c5f9e9570af1e9a933ebc6cbfe560453831085))
+
+
 ## v1.0.1 (2026-11-23)
 
 ### Bug Fixes
