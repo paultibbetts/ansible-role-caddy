@@ -15,12 +15,16 @@ Requirements
 Install
 -------
 
-This role is currently installed directly from GitHub. Add it to your
-`requirements.yml` and install with `ansible-galaxy`:
+Install this role from Ansible Galaxy:
+
+```sh
+ansible-galaxy role install paultibbetts.caddy
+```
+
+Alternatively, add it to your `requirements.yml` to pin the version:
 
 ```yaml
 - name: paultibbetts.caddy
-  src: https://github.com/paultibbetts/ansible-role-caddy
   version: 2.0.0
 ```
 
